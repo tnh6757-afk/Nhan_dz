@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kéo Búa Bao</title>
+<style>
+:root{
+  --bg:#f3efe6;--ink:#1d2b3a;--card:#fffdf8;--line:#d9d2c3;--win:#2f8f5b;--lose:#c0453a;--draw:#8a7f6a;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#14202c;--ink:#f0ebe0;--card:#1d2d3d;--line:#34485c;--win:#5fcf93;--lose:#ff7f73;--draw:#b9ae96}
+}
+:root[data-theme="dark"]{--bg:#14202c;--ink:#f0ebe0;--card:#1d2d3d;--line:#34485c;--win:#5fcf93;--lose:#ff7f73;--draw:#b9ae96}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:480px;padding:28px 20px 40px}
+h1{font-size:2rem;margin:0 0 4px;letter-spacing:-.02em}
+p.sub{margin:0 0 24px;opacity:.7}
+.picks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+button.pick{background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:16px;padding:18px 6px;font:inherit;font-size:1rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .1s,border-color .1s}
+button.pick:hover{border-color:var(--ink)}
+button.pick:active{transform:scale(.96)}
+button.pick:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.emoji{font-size:2.6rem;line-height:1}
+.arena{margin-top:28px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:20px;text-align:center;min-height:170px}
+.vs{display:flex;justify-content:space-around;align-items:center;font-size:3rem;margin-bottom:12px}
+.vs small{display:block;font-size:.8rem;opacity:.65;margin-top:4px}
+#result{font-size:1.6rem;font-weight:700;min-height:2rem}
+#result.win{color:var(--win)}#result.lose{color:var(--lose)}#result.draw{color:var(--draw)}
+.score{display:flex;justify-content:space-between;margin-top:20px;gap:8px}
+.score div{flex:1;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.score b{display:block;font-size:1.5rem}
+button.reset{margin-top:16px;background:none;border:none;color:var(--ink);opacity:.6;font:inherit;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+<main>
+  <h1>Kéo Búa Bao</h1>
+  <p class="sub">Chọn một lựa chọn để đấu với máy.</p>
+
+  <div class="picks">
+    <button class="pick" data-v="keo"><span class="emoji">✌️</span>Kéo</button>
+    <button class="pick" data-v="bua"><span class="emoji">✊</span>Búa</button>
+    <button class="pick" data-v="bao"><span class="emoji">🖐️</span>Bao</button>
+  </div>
+
+  <div class="arena" aria-live="polite">
+    <div class="vs">
+      <div><span id="you">❔</span><small>Bạn</small></div>
+      <div><span id="cpu">❔</span><small>Máy</small></div>
+    </div>
+    <div id="result">Mời bạn chọn!</div>
+  </div>
+
+  <div class="score">
+    <div><b id="w">0</b>Thắng</div>
+    <div><b id="d">0</b>Hòa</div>
+    <div><b id="l">0</b>Thua</div>
+  </div>
+  <div style="text-align:center"><button class="reset" id="reset">Chơi lại từ đầu</button></div>
+</main>
+
+<script>
+const icon = {keo:"✌️", bua:"✊", bao:"🖐️"};
+const beats = {keo:"bao", bao:"bua", bua:"keo"}; // key thắng value
+const score = {w:0, d:0, l:0};
+const $ = id => document.getElementById(id);
+
+function play(chon){
+  const may = ["keo","bua","bao"][Math.floor(Math.random()*3)];
+  $("you").textContent = icon[chon];
+  $("cpu").textContent = icon[may];
+  const r = $("result");
+  if (chon === may){ r.textContent = "Hòa!"; r.className = "draw"; score.d++; }
+  else if (beats[chon] === may){ r.textContent = "Bạn thắng!"; r.className = "win"; score.w++; }
+  else { r.textContent = "Bạn thua!"; r.className = "lose"; score.l++; }
+  $("w").textContent = score.w; $("d").textContent = score.d; $("l").textContent = score.l;
+}
+
+document.querySelectorAll(".pick").forEach(b => b.addEventListener("click", () => play(b.dataset.v)));
+$("reset").addEventListener("click", () => {
+  score.w = score.d = score.l = 0;
+  ["w","d","l"].forEach(k => $(k).textContent = 0);
+  $("you").textContent = $("cpu").textContent = "❔";
+  $("result").textContent = "Mời bạn chọn!"; $("result").className = "";
+});
+</script>
+</body>
+</html>
